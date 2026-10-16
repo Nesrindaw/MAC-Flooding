@@ -55,3 +55,14 @@ All emulation steps were executed within an isolated host-only subnet (VMware VM
 ```bash
 # Execute MAC Flooding to exhaust the CAM table
 sudo macof -i eth0
+```
+
+## Attack Evidence Map
+
+| Telemetry Source |Evidence Classification | Observed Artifacts in Lab |
+| :--- | :--- | :--- |
+| **Wireshark (PCAP)** | Direct Evidence | Massive flood of frames with randomized Source/Dest MACs and IPs. |
+| **Wireshark (PCAP)** | Direct Evidence | Unicast traffic (Victim DNS to Gateway) captured by Kali interface. |
+| **Splunk SIEM** | Direct Evidence | Unusually high volume of unique source IPs and flows in a single second. |
+| **Switch Telemetry** | Supporting Evidence | High CPU/Memory utilization, CAM table overflow Syslogs. |
+| **Suricata IDS** | Missing Evidence / Gap | 0 Alerts generated (Signatures failed due to random payload/IPs).` |
