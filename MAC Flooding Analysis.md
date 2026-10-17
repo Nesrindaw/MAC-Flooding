@@ -76,12 +76,11 @@ sudo macof -i eth0
 ![MAC Flood Traffic](screenshots/wireshark-mac-flood-traffic.png)
 
 - **Proof of Unicast Sniffing:** `ip.src == 192.168.56.10 && eth.dst != ff:ff:ff:ff:ff:ff` (Isolating victim traffic captured on attacker machine).
+  ![Unicast Sniffing Evidence](screenshots/wireshark-unicast-sniffing.png)
 
 ### 2. Splunk Enterprise Investigation Query (SPL):
 
 Proof of Execution & Behavioral Detection:
-![Unicast Sniffing Evidence](screenshots/wireshark-unicast-sniffing.png)
-
 *(Note: Threshold `> 25` was tuned specifically for the isolated lab environment; enterprise environments will require a higher threshold).*
 
 **Phase 1: Tuning & Baseline Analysis (Without Threshold)**
