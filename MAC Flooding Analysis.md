@@ -138,3 +138,13 @@ Proof of Execution & Behavioral Detection:
                   5. Implement Port Security (MAC Limiting).
                   
    ```
+## Final Attack Cheat Sheet
+
+| Scope Dimension | Observed Extent |
+| :--- | :--- |
+| **Attack Name** | MAC Flooding / CAM Exhaustion | 
+| **MITRE ATT&CK** | T1040 (Network Sniffing), T1498 (DoS) | 
+| **Primary Objective** | Force Fail-Open state to sniff unicast traffic) |
+| **Key Evidence** | Splunk Flow Anomalies, PCAP frame storms, Switch CPU logs | 
+| **First Response Action** | Isolate Attacker Switch Port -> Clear Switch CAM Table) | 
+| **Core Prevention** | Port Security (MAC Limit & Err-Disable) |
