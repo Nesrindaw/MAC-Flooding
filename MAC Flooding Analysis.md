@@ -70,9 +70,9 @@ sudo macof -i eth0
 ## Detection Engineering
 ### 1. Wireshark Packet Filters:
 
-- Detect MAC Flood Storm: Check for thousands of frames lacking typical protocols.
+- **Detect MAC Flood Storm:** Check for thousands of frames lacking typical protocols.
 
-- Proof of Unicast Sniffing: 'ip.src == 192.168.56.10 && eth.dst != ff:ff:ff:ff:ff:ff' (Isolating victim traffic captured on attacker machine).
+- **Proof of Unicast Sniffing:** `ip.src == 192.168.56.10 && eth.dst != ff:ff:ff:ff:ff:ff` (Isolating victim traffic captured on attacker machine).
 
 ### 2. Splunk Enterprise Investigation Query (SPL):
 
@@ -120,7 +120,8 @@ Proof of Execution & Behavioral Detection:
 - **Ignoring the "Noise" to Miss the "Signal":** Focusing only on the massive flood of MACs and forgetting to check if the attacker successfully sniffed sensitive credentials (Unicast data) during the chaos.
 
 ## Analyst Decision Tree
-```Alert: Anomalous Flow Spike / High Switch CPU
+
+``` Alert: Anomalous Flow Spike / High Switch CPU
                │
    Is it a known vulnerability scanner or network mapper?
           YES ──>  Close as Benign / Update Baseline 
