@@ -66,3 +66,73 @@ sudo macof -i eth0
 | **Splunk SIEM** | Direct Evidence | Unusually high volume of unique source IPs and flows in a single second. |
 | **Switch Telemetry** | Supporting Evidence | High CPU/Memory utilization, CAM table overflow Syslogs. |
 | **Suricata IDS** | Missing Evidence / Gap | 0 Alerts generated (Signatures failed due to random payload/IPs).` |
+
+## Detection Engineering
+### 1. Wireshark Packet Filters:
+
+- Detect MAC Flood Storm: Check for thousands of frames lacking typical protocols.
+
+- Proof of Unicast Sniffing: 'ip.src == 192.168.56.10 && eth.dst != ff:ff:ff:ff:ff:ff' (Isolating victim traffic captured on attacker machine).
+
+### 2. Splunk Enterprise Investigation Query (SPL):
+
+Proof of Execution & Behavioral Detection:
+
+## Investigation & Timeline Analysis
+
+* **T0:** Attacker executes macof on Kali Linux (192.168.56.11).
+* **T1 (+0.5s):** Wireshark captures a massive influx of malformed frames. Flow count in SIEM spikes to 374 flows/second.
+* **T2 (+2.0s):** Switch CAM table reaches capacity; switch enters Fail-Open mode.
+* **T3 (+5.0s):** Victim (Windows 10) attempts to browse the web. DNS requests fail due to network congestion (DoS impact).
+* **T4 (+6.0s):** Attacker successfully sniffs victim's Unicast DNS packets intended for the Gateway.
+* **Defensible Conclusion:** Verified Layer 2 MAC Flooding resulting in successful AiTM/Sniffing and localized DoS. IDS signatures failed, requiring flow-based behavioral detection.
+ ## Hypothesis-Driven Threat Hunting
+**Hunting Hypothesis:** An adversary flooding the network will generate an anomalous ratio of unique Source IP/MAC addresses compared to total network flows originating from a single physical port or VLAN within a microsecond window.
+**Hunting Query (SPL):**
+
+## Scoping the Incident
+
+| Scope Dimension | Observed Extent | Telemetry Justification |
+| :--- | :--- | :--- | 
+| **Affected Hosts** | Entire Subnet | Broadcast storm affected all hosts in `192.168.56.0/24` |
+| **Corporate Victim** | 1 Host (Kali) | Origin of the initial execution (identified via port tracking). |
+| **Adversary Host** | Localized (Layer 2) | Flooding cannot cross routers; contained to the local Switch/VLAN. |
+
+## Response & Containment Protocol
+1. **Immediate Containment:** Administratively shut down the physical switch port connected to the attacker ('shutdown').
+
+2. **Short-Term Containment:** Clear the dynamic CAM table on the affected switch ('clear mac address-table dynamic') to restore normal routing operations.
+
+3. **Eradication:** Locate the rogue device physically or isolate the VM; revoke network access.
+
+4. **Recovery Verification:** Verify network latency returns to normal and unicast traffic is no longer visible in promiscuous mode.
+
+## Architectural Hardening & Prevention
+
+**Port Security (MAC Limiting):** Configure edge switches to restrict the maximum number of MAC addresses allowed per port (e.g., switchport port-security maximum 2).
+**Violation Actions:** Enforce switchport port-security violation restrict or err-disable to immediately shut down the port upon detecting a flood.
+**802.1X Port Security:** Enforce network access control (NAC) requiring certificate-based authentication before granting Layer 2 access.
+
+## Common SOC Analyst Mistakes
+
+**Relying Exclusively on Static IDS Signatures:** Default Suricata rules missed the attack completely because macof randomizes IPs and MACs. Behavioral analysis is mandatory.
+**Dismissing "Network Slowness" as an IT Issue:** Analysts often ignore alerts about dropped packets or slow network response, assuming it's an IT routing problem rather than a CAM table exhaustion attack.
+**Ignoring the "Noise" to Miss the "Signal":** Focusing only on the massive flood of MACs and forgetting to check if the attacker successfully sniffed sensitive credentials (Unicast data) during the chaos.
+
+## Analyst Decision Tree
+'''Alert: Anomalous Flow Spike / High Switch CPU
+               │
+   Is it a known vulnerability scanner or network mapper?
+          YES ──>  Close as Benign / Update Baseline 
+          NO
+               │
+   Are the Source MACs/IPs completely randomized and massive in volume?
+         NO  ──>  Investigate as standard network loop or broadcast storm
+         YES ──>  CONFIRMED MAC FLOODING / CAM EXHAUSTION
+                  1. Identify physical switch port.
+                  2. Isolate/Shutdown Attacker Switch Port.
+                  3. Clear switch dynamic CAM table.
+                  4. Analyze PCAP for Plaintext Data Exposure.
+                  5. Implement Port Security (MAC Limiting).
+                  
+   '''
