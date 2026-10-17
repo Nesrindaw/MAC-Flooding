@@ -58,6 +58,7 @@ All emulation steps were executed within an isolated host-only subnet (VMware VM
 # Execute MAC Flooding to exhaust the CAM table
 sudo macof -i eth0
 ```
+![Attacker Macof Execution.png](screenshots/attacker-macof-execution.png)
 
 ## Attack Evidence Map
 
