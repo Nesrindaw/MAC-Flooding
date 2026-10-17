@@ -1,0 +1,20 @@
+/* 
+SOC Investigation: MAC Flooding Attack
+Author: SOC Analyst
+Target: Layer 2 Switch / Suricata eve.json
+*/
+
+/* 1. Baseline & Tuning Query: Identify normal vs abnormal flow counts per second */
+source="*eve.json" event_type="flow"
+| bin _time span=1s
+| stats count as total_flows, dc(src_ip) as unique_source_ips by _time
+| sort - total_flows
+
+/* 2. Final Detection Alert: MAC/IP Flooding Behavior */
+source="*eve.json" event_type="flow"
+| bin _time span=1s
+| stats count as total_flows, dc(src_ip) as unique_source_ips by _time
+| where total_flows > 25
+| eval alert_msg="Potential MAC/IP Flooding Attack Detected (macof behavior)"
+| table _time, total_flows, unique_source_ips, alert_msg
+| sort - _time
