@@ -99,9 +99,9 @@ Proof of Execution & Behavioral Detection:
 | **Adversary Host** | Localized (Layer 2) | Flooding cannot cross routers; contained to the local Switch/VLAN. |
 
 ## Response & Containment Protocol
-1. **Immediate Containment:** Administratively shut down the physical switch port connected to the attacker ('shutdown').
+1. **Immediate Containment:** Administratively shut down the physical switch port connected to the attacker (`shutdown`).
 
-2. **Short-Term Containment:** Clear the dynamic CAM table on the affected switch ('clear mac address-table dynamic') to restore normal routing operations.
+2. **Short-Term Containment:** Clear the dynamic CAM table on the affected switch (`clear mac address-table dynamic`) to restore normal routing operations.
 
 3. **Eradication:** Locate the rogue device physically or isolate the VM; revoke network access.
 
@@ -109,18 +109,18 @@ Proof of Execution & Behavioral Detection:
 
 ## Architectural Hardening & Prevention
 
-**Port Security (MAC Limiting):** Configure edge switches to restrict the maximum number of MAC addresses allowed per port (e.g., switchport port-security maximum 2).
-**Violation Actions:** Enforce switchport port-security violation restrict or err-disable to immediately shut down the port upon detecting a flood.
-**802.1X Port Security:** Enforce network access control (NAC) requiring certificate-based authentication before granting Layer 2 access.
+- **Port Security (MAC Limiting):** Configure edge switches to restrict the maximum number of MAC addresses allowed per port (e.g., switchport port-security maximum 2).
+- **Violation Actions:** Enforce switchport port-security violation restrict or err-disable to immediately shut down the port upon detecting a flood.
+- **802.1X Port Security:** Enforce network access control (NAC) requiring certificate-based authentication before granting Layer 2 access.
 
 ## Common SOC Analyst Mistakes
 
-**Relying Exclusively on Static IDS Signatures:** Default Suricata rules missed the attack completely because macof randomizes IPs and MACs. Behavioral analysis is mandatory.
-**Dismissing "Network Slowness" as an IT Issue:** Analysts often ignore alerts about dropped packets or slow network response, assuming it's an IT routing problem rather than a CAM table exhaustion attack.
-**Ignoring the "Noise" to Miss the "Signal":** Focusing only on the massive flood of MACs and forgetting to check if the attacker successfully sniffed sensitive credentials (Unicast data) during the chaos.
+- **Relying Exclusively on Static IDS Signatures:** Default Suricata rules missed the attack completely because macof randomizes IPs and MACs. Behavioral analysis is mandatory.
+- **Dismissing "Network Slowness" as an IT Issue:** Analysts often ignore alerts about dropped packets or slow network response, assuming it's an IT routing problem rather than a CAM table exhaustion attack.
+- **Ignoring the "Noise" to Miss the "Signal":** Focusing only on the massive flood of MACs and forgetting to check if the attacker successfully sniffed sensitive credentials (Unicast data) during the chaos.
 
 ## Analyst Decision Tree
-'''Alert: Anomalous Flow Spike / High Switch CPU
+```Alert: Anomalous Flow Spike / High Switch CPU
                │
    Is it a known vulnerability scanner or network mapper?
           YES ──>  Close as Benign / Update Baseline 
@@ -135,4 +135,4 @@ Proof of Execution & Behavioral Detection:
                   4. Analyze PCAP for Plaintext Data Exposure.
                   5. Implement Port Security (MAC Limiting).
                   
-   '''
+   ```
