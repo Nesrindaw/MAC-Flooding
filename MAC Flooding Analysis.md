@@ -121,7 +121,8 @@ Proof of Execution & Behavioral Detection:
 
 ## Analyst Decision Tree
 
-``` Alert: Anomalous Flow Spike / High Switch CPU
+```text
+  Alert: Anomalous Flow Spike / High Switch CPU
                │
    Is it a known vulnerability scanner or network mapper?
           YES ──>  Close as Benign / Update Baseline 
