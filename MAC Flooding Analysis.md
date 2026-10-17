@@ -43,6 +43,8 @@ Users will experience severe network degradation, high latency, and dropped conn
 
 ## Hands-on Lab & Baseline Validation
 All emulation steps were executed within an isolated host-only subnet (VMware VMnet2: 192.168.56.0/24).
+**Victim Initial ARP State (Pre-Attack):**
+![Victim ARP Baseline](screenshots/baseline-victim-arp.png)
 
 **Verified Enterprise Baseline:**
 | Device Role | Hostname | IP Address | Authentic MAC Address | Interface |
@@ -71,12 +73,22 @@ sudo macof -i eth0
 ### 1. Wireshark Packet Filters:
 
 - **Detect MAC Flood Storm:** Check for thousands of frames lacking typical protocols.
+![MAC Flood Traffic](screenshots/wireshark-mac-flood-traffic.png)
 
 - **Proof of Unicast Sniffing:** `ip.src == 192.168.56.10 && eth.dst != ff:ff:ff:ff:ff:ff` (Isolating victim traffic captured on attacker machine).
 
 ### 2. Splunk Enterprise Investigation Query (SPL):
 
 Proof of Execution & Behavioral Detection:
+![Unicast Sniffing Evidence](screenshots/wireshark-unicast-sniffing.png)
+
+*(Note: Threshold `> 25` was tuned specifically for the isolated lab environment; enterprise environments will require a higher threshold).*
+
+**Phase 1: Tuning & Baseline Analysis (Without Threshold)**
+![Splunk Tuning Baseline](screenshots/splunk-tuning-baseline.png)
+
+**Phase 2: Final SOC Alert (Threshold > 25)**
+![Splunk Detection Alert](screenshots/splunk-detection-alert.png)
 
 ## Investigation & Timeline Analysis
 
@@ -148,3 +160,5 @@ Proof of Execution & Behavioral Detection:
 | **Key Evidence** | Splunk Flow Anomalies, PCAP frame storms, Switch CPU logs | 
 | **First Response Action** | Isolate Attacker Switch Port -> Clear Switch CAM Table) | 
 | **Core Prevention** | Port Security (MAC Limit & Err-Disable) |
+
+(**Note:** Threshold > `25` was tuned specifically for the isolated lab environment; enterprise environments will require a higher threshold).
